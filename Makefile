@@ -13,7 +13,7 @@ predict.h:
 
 
 predict: predict.c predict.h
-	cc -Wall -fomit-frame-pointer -lm -lncurses -pthread predict.c -o predict
+	cc -Wall -fomit-frame-pointer -lm -lncurses -ltinfo -pthread predict.c -o predict
 
 
 
