@@ -5449,13 +5449,12 @@ void MultiTrack()
 	attrset(COLOR_PAIR(6)|A_REVERSE|A_BOLD);
 	clear();
 
-	printw("                                                                                \n");
-	printw("                     PREDICT Real-Time Multi-Tracking Mode                      \n");
-	printw("                    Current Date/Time:                                          \n");
-	printw("                                                                                \n");
+	printw("                                                                                ");
+	printw("                     PREDICT Real-Time Multi-Tracking Mode                      ");
+	printw("                    Current Date/Time:                                          ");
+	printw("                                                                                ");
 
 	attrset(COLOR_PAIR(2)|A_REVERSE);
-
 	printw(" Satellite  Az   El %s  %s  Range  | Satellite  Az   El %s  %s  Range   ",(io_lat=='N'?"LatN":"LatS"),(io_lon=='W'?"LonW":"LonE"),(io_lat=='N'?"LatN":"LatS"),(io_lon=='W'?"LonW":"LonE"));
 
 	for (x=0; x<MAX_SATS; x++)
@@ -5479,7 +5478,7 @@ void MultiTrack()
 
 			if (z%2)
 			{
-				indx=y+12;
+				indx=y+12+OFFSET;
 				x=41;
 			}
 
@@ -5628,7 +5627,7 @@ void MultiTrack()
 		{
 			/* Bubble sort the AOS times */
 
-			for (z=22; z>=0; z--)
+			for (z=MAX_SATS-1; z>=0; z--)
 				for (y=0; y<=z; y++)
 					if (aos2[y]>=aos2[y+1])
 					{
@@ -5651,7 +5650,7 @@ void MultiTrack()
 			mvprintw(20 + OFFSET,31,"---------------");
 			attrset(COLOR_PAIR(3)|A_BOLD);
 
-			for (x=0, y=0, z=-1; x<21 && y!=3; x++)
+			for (x=0, y=0, z=-1; x<MAX_SATS-1 && y!=3; x++)
 			{
 				if (ok2predict[satindex[x]] && aos2[x]!=0.0)
 				{
