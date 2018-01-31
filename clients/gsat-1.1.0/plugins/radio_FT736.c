@@ -24,18 +24,21 @@
 #include <math.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <stdlib.h>
+#include <termios.h>
 
 int plugin_open_rig( char * config );
 void plugin_close_rig( void );
 void plugin_set_downlink_frequency( double frequency );
 void plugin_set_uplink_frequency( double frequency );
 
-FILE *radioFileA;
+int  fd;
 
 static void send_freq(char freq[])
 {
     int i, j, frbuf;
+    unsigned char buf[0];
 
     i = 0; /* counter for CAT */
     j = 0; /* string counter */
@@ -49,7 +52,8 @@ static void send_freq(char freq[])
 	++j;
 	frbuf +=   freq[j]-'0';
     }
-    putc(frbuf, radioFileA);		  /* Send 1Byte */
+    buf[0] = frbuf;
+    write(fd, buf, 1);			  /* Send 1Byte */
 
     ++j;
     for( i=1; i<4; ++i) {                 /* Send +3Bytes */
@@ -59,7 +63,8 @@ static void send_freq(char freq[])
 	    ++j;                          /* skip */
 	}
 	frbuf += freq[j]-'0'; 
-	putc(frbuf, radioFileA);
+	buf[0] = frbuf;
+	write(fd, buf, 1);
 	++j;
     }
 
@@ -67,7 +72,7 @@ static void send_freq(char freq[])
     
 char * plugin_info( void )
 {
-  return "YAESU FT736 V0.1";
+  return "YAESU FT736 V0.2";
 }
 
 int plugin_open_rig( char * config )
@@ -77,21 +82,29 @@ int plugin_open_rig( char * config )
     char Smod[4];
     char Qmod[4];
     char *ptr, *parm;
-    char cmd[64];
  
-    int dummy = 0;
-    int saton = 0x0E;
-    int modLSB = 0x00;
-    int modUSB = 0x01;
-    int modCW = 0x02;
-    int modFM = 0x08;
-    int modRX = 0x17;
-    int modTX = 0x27;
-    int freqRX = 0x1e;
-    int freqTX = 0x2e;
+    unsigned char dummy[1];
+    unsigned char saton[1];
+    unsigned char mode[4];
+    unsigned char modRX[1], freqRX[1], modTX[1], freqTX[1];
+
+    unsigned char upMode[1], downMode[1];
+
+    dummy[0] = 0x0;
+    saton[0] = 0x0E;
+    mode[0] = 0x00;	/* LSB */
+    mode[1] = 0x01;	/* USB */
+    mode[2] = 0x02;	/* CW */
+    mode[3] = 0x08;	/* FM */ 
+
+    modRX[0] = 0x17;	/* SAT, mode RX */
+    modTX[0] = 0x27;	/* SAT, mode TX */
+    freqRX[0] = 0x1e;   /* SAT, freq RX */
+    freqTX[0] = 0x2e;	/* SAT, freq TX */
+ 
     int term;
 
-    int upMode, downMode;
+    struct termios attr;
 
     char freq[12];
     char upFreq[12], downFreq[12], tmp1Freq[12], tmp2Freq[12];
@@ -139,83 +152,91 @@ int plugin_open_rig( char * config )
         strcpy(Qmod,"CW");
 
 /* Open CAT port */
-    radioFileA = fopen(tty, "a");
-    if ( radioFileA == NULL ) {
+    if ( (fd = open(tty, O_RDWR)) < 0 ) {
 	fprintf(stderr, "can't open %s\n", tty);
         return 0;
     }
 
 /* CAT port initialize */
-   sprintf(cmd, "/bin/stty speed 4800 < %s", tty);
-   system(cmd);
-   sprintf(cmd, "/bin/stty cstopb < %s", tty);
-   system(cmd);
+   tcgetattr(fd, &attr);
+   memset(&attr, 0, sizeof(attr));
+
+   attr.c_cflag = B4800|CLOCAL|CREAD;
+   attr.c_cflag &= ~CSIZE;
+   attr.c_cflag |= CS8;
+   attr.c_cflag |= HUPCL|CSTOPB;
+   attr.c_iflag = IGNPAR;
+   attr.c_oflag = 0;
+   attr.c_lflag = 0;
+   attr.c_cc[VTIME] = 0;
+   attr.c_cc[VMIN] = 1;
+   tcsetattr(fd, TCSANOW, &attr);
 
 /* Send CMD: CAT ON */
-    putc(dummy, radioFileA);
-    putc(dummy, radioFileA);
-    putc(dummy, radioFileA);
-    putc(dummy, radioFileA);
-    putc(dummy, radioFileA);
-    fflush(radioFileA);
+    write(fd, dummy, 1);
+    write(fd, dummy, 1);
+    write(fd, dummy, 1);
+    write(fd, dummy, 1);
+    write(fd, dummy, 1);
+    usleep(10000);
 
 /* Send CMD: SAT ON */
-    putc(dummy, radioFileA);
-    putc(dummy, radioFileA);
-    putc(dummy, radioFileA);
-    putc(dummy, radioFileA);
-    putc(saton, radioFileA);
-    fflush(radioFileA);
+    write(fd, dummy, 1);
+    write(fd, dummy, 1);
+    write(fd, dummy, 1);
+    write(fd, dummy, 1);
+    write(fd, saton, 1);
+    usleep(10000);
     sleep(1);
 
 /* set QSO MODE  */
-    upMode = downMode = modCW;
+    upMode[0] = downMode[0] = mode[2];
 
     if ( strcmp(Qmod, "CW") == 0 ) {
-      upMode = downMode = modCW;  
+      upMode[0] = downMode[0] = mode[2];  
     }
     if ( strcmp(Qmod, "SSB") == 0 ) {
-      upMode = modLSB;
-      downMode = modUSB;
+      upMode[0] = mode[0];
+      downMode[0] = mode[1];
     }
     if ( strcmp(Qmod, "FM") == 0 ) {
-      upMode = downMode = modFM;
+      upMode[0] = downMode[0] = mode[3];
     }
 
 /* Send CMD: SAT RX MODE */
-    putc(downMode, radioFileA);
-    putc(dummy, radioFileA);
-    putc(dummy, radioFileA);
-    putc(dummy, radioFileA);
-    putc(modRX, radioFileA);
-    fflush(radioFileA);
+    write(fd, downMode, 1);
+    write(fd, dummy, 1);
+    write(fd, dummy, 1);
+    write(fd, dummy, 1);
+    write(fd, modRX, 1);
+    usleep(10000);
 
 /* Send CMD: SAT TX MODE */
-    putc(upMode, radioFileA);
-    putc(dummy, radioFileA);
-    putc(dummy, radioFileA);
-    putc(dummy, radioFileA);
-    putc(modTX, radioFileA);
-    fflush(radioFileA);
+    write(fd, upMode, 1);
+    write(fd, dummy, 1);
+    write(fd, dummy, 1);
+    write(fd, dummy, 1);
+    write(fd, modTX, 1);
+    usleep(10000);
     sleep(1);
 
 /* set SAT MODE */
-    sprintf(upFreq, "%.6f", U);
-    sprintf(downFreq, "%.6f", V);
-    sprintf(tmp1Freq, "%.6f", T1);
-    sprintf(tmp2Freq, "%.6f", T2);
+    sprintf(upFreq, "%.5f", U);
+    sprintf(downFreq, "%.5f", V);
+    sprintf(tmp1Freq, "%.5f", T1);
+    sprintf(tmp2Freq, "%.5f", T2); 
 
     if ( strcmp(Smod, "UV") == 0 ) {	/* ^ 430MHz v 144MHz */
-      sprintf(upFreq, "%.6f", U);
-      sprintf(downFreq, "%.6f", V);
+      sprintf(upFreq, "%.5f", U);
+      sprintf(downFreq, "%.5f", V);
     }
     if ( strcmp(Smod, "VU") == 0 ) {	/* ^ 144MHz v 430MHz */
-      sprintf(upFreq, "%.6f", V);
-      sprintf(downFreq, "%.6f", U);
+      sprintf(upFreq, "%.5f", V);
+      sprintf(downFreq, "%.5f", U);
     }
     if ( strcmp(Smod, "US") == 0 ) {	/* ^ 430MHz v 2.4GHz */
-      sprintf(upFreq, "%.6f", U);
-      sprintf(downFreq, "%.6f", V);
+      sprintf(upFreq, "%.5f", U);
+      sprintf(downFreq, "%.5f", V);
     }
     term = strlen(upFreq);
     upFreq[term] = '\0';
@@ -224,96 +245,104 @@ int plugin_open_rig( char * config )
     term = strlen(tmp1Freq);
     tmp1Freq[term] = '\0';
     term = strlen(tmp2Freq);
-    tmp2Freq[term] = '\0';
+    tmp2Freq[term] = '\0'; 
 
 /* Send CMD: dummy downlink Freq */
     send_freq(tmp2Freq);
-    putc(freqRX, radioFileA);
-    fflush(radioFileA);
+    write(fd, freqRX, 1);
+    usleep(10000);
     sleep(1);
  
 /* Send CMD: dummy uplink Freq */
     send_freq(tmp1Freq);
-    putc(freqTX, radioFileA);
-    fflush(radioFileA);
+    write(fd, freqTX, 1);
+    usleep(10000);
 
 /* Send CMD: uplink Freq */
     send_freq(upFreq);
-    putc(freqTX, radioFileA);
-    fflush(radioFileA);
+    write(fd, freqTX, 1);
+    usleep(10000); 
     sleep(1);
 
 /* Send CMD: downlink Freq */
     send_freq(downFreq);
-    putc(freqRX, radioFileA);
-    fflush(radioFileA);
+    write(fd, freqRX, 1);
+    usleep(10000);
 
-  return 1;
+    return 1;
 }
 
 void plugin_close_rig( void )
 {
-  int dummy = 0;
-  int catof = 0x80;
+    unsigned char dummy[1];
+    unsigned char catof[1];
+    dummy[0] = 0x0;
+    catof[0] = 0x80;
 
-  printf("FT736 plugin closed.\n");
+    printf("FT736 plugin closed.\n");
 
 /* Send CMD: CAT Off */
-  putc(dummy, radioFileA);
-  putc(dummy, radioFileA);
-  putc(dummy, radioFileA);
-  putc(dummy, radioFileA);
-  putc(catof, radioFileA);
-  fflush(radioFileA);
-
-  fclose(radioFileA);
+    write(fd, dummy, 1);
+    write(fd, dummy, 1);
+    write(fd, dummy, 1);
+    write(fd, dummy, 1);
+    write(fd, catof, 1);
+    usleep(10000);
 
 }
 
 void plugin_set_downlink_frequency( double frequency )
 {
-  double freq;
-  char downFreq[12];
-  int freqRX = 0x1e;
-  int term;
+    double freq;
+    double conv = 2256;				/* Convertor OSC freq (MHz) */
+    char downFreq[12];
+    unsigned char freqRX[1];
+    freqRX[0] = 0x1e;
+    int term;
 
-  freq=frequency-fmod(frequency,5);
-  if(fmod(frequency,5)>2.5)
-    freq+=5;
+    freq=frequency-fmod(frequency,5);
+    if(fmod(frequency,5)>2.5)
+      freq+=5;
 
 /* printf("Downlink Frequency: %f kHz -> %f kHz\n", frequency, freq); */
 
-  frequency = frequency / 1000;			/* Convert: kHz -> MHz */
-  sprintf(downFreq, "%.6f", frequency);
-  term = strlen(downFreq);
-  downFreq[term] = '\0';
+    frequency = frequency / 1000;		/* Convert: kHz -> MHz */
 
-  send_freq(downFreq);
-  putc(freqRX, radioFileA); 
-  fflush(radioFileA);
+    if ( frequency > 2400 )
+        frequency -= conv;
+
+
+    sprintf(downFreq, "%.5f", frequency);
+    term = strlen(downFreq);
+    downFreq[term] = '\0';
+
+    send_freq(downFreq);
+    write(fd, freqRX, 1);
+    usleep(10000);
 
 }
 
 void plugin_set_uplink_frequency( double frequency )
 {
-  double freq;
-  char upFreq[12];
-  int freqTX = 0x2e;
-  int term;
+    double freq;
+    char upFreq[12];
+    unsigned char freqTX[1];
+    freqTX[0] = 0x2e;
+    int term;
 
-  freq=frequency-fmod(frequency,5);
-  if(fmod(frequency,5)>2.5)
-    freq+=5;
+    freq=frequency-fmod(frequency,5);
+    if(fmod(frequency,5)>2.5)
+        freq+=5;
 
 /* printf("Uplink Frequency: %f kHz -> %f kHz\n", frequency, freq); */
 
-  frequency = frequency / 1000;		/* Convert: kHz -> MHz */
-  sprintf(upFreq, "%.6f", frequency);
-  term = strlen(upFreq);
-  upFreq[term] = '\0';
+    frequency = frequency / 1000;		/* Convert: kHz -> MHz */
+    sprintf(upFreq, "%.5f", frequency);
+    term = strlen(upFreq);
+    upFreq[term] = '\0';
 
-  send_freq(upFreq);
-  putc(freqTX, radioFileA);
-  fflush(radioFileA);
+    send_freq(upFreq);
+    write(fd, freqTX, 1);
+    usleep(10000);
 
 }
