@@ -1,6 +1,14 @@
 /*
  * Icom plugin for gsat
  *
+ * Options
+ *  D: RS-232C device name (default /dev/ttyS0)
+ *  S: RS-232C speed (defalut 9600baud)
+ *  I: CI-V address in hex (default 42 aka IC-820)
+ *
+ * Format
+ *  D/dev/ttyUSB1:S19200:I4F
+ *
  * Copyright (C) 2001-5 by Xavier Crehueras, EB3CZS
  *                         Hiroshi Iwamoto, JH4XSY
  *
@@ -65,7 +73,7 @@ void setDTR( int fd )
 
 char * plugin_info( void )
 {
-  return "ICOM V1.0";
+  return "ICOM V1.1";
 }
 
 int plugin_open_rig( char * config )
@@ -268,10 +276,6 @@ void send_freq_to_ICOM( double frequency , int vfo)
     perror("select");
   } else if ( retval ) {
     read(port, command, sizeof(command));
-  } else {
-#ifdef DEBUG
-    fprintf(stderr, "No DATA from ICOM !!!\n");
-#endif
   }
 
   frequency=frequency*10.0;
@@ -344,12 +348,7 @@ void send_freq_to_ICOM( double frequency , int vfo)
     perror("select");
   } else if ( retval ) {
     read(port, command, sizeof(command));
-  } else {
-#if DEBUG
-    fprintf(stderr, "No DATA from ICOM !!!\n");
-#endif
   }
-
 
 }
 
