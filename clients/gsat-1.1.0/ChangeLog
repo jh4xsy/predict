@@ -1,3 +1,8 @@
+2018-02-03  gettextize  <bug-gnu-gettext@gnu.org>
+
+	* Makefile.am (ACLOCAL_AMFLAGS): New variable.
+	(EXTRA_DIST): New variable.
+
 1.1.0: Added mode selection for satellite work. Added about dialog. Added
        global preferences and satellite database files. Code cleanups.
        Added plugin for the Yaesu FT-736 contributed by Hiroshi Iwamoto JH4XSY.

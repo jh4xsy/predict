@@ -20,6 +20,8 @@
  * Look at the README for more information on the program.
  */
 
+#include <errno.h>
+
 /* Global definitions */
 
 #define GSATVERSION "1.1.0"
@@ -54,8 +56,6 @@
 
 /* Maximum number of dots for drawing az/el graphic */
 #define AZELMAXDOTS AZELSIZEX*2
-
-int errno;
 
 /* Network parameters */
 char *predicthost;

@@ -1,4 +1,3 @@
-# Generated automatically from Makefile.in by configure.
 # Makefile.in generated automatically by automake 1.4-p4 from Makefile.am
 
 # Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
@@ -16,19 +15,20 @@ SHELL = /bin/sh
 
 srcdir = .
 top_srcdir = .
+
 prefix = /usr/local
 exec_prefix = ${prefix}
 
 bindir = ${exec_prefix}/bin
 sbindir = ${exec_prefix}/sbin
-libexecdir = ${exec_prefix}/libexec
+libexecdir = ${exec_prefix}/lib
 datadir = ${prefix}/share
 sysconfdir = ${prefix}/etc
 sharedstatedir = ${prefix}/com
 localstatedir = ${prefix}/var
-libdir = ${exec_prefix}/lib
-infodir = ${prefix}/info
-mandir = ${prefix}/man
+libdir = ${exec_prefix}/lib64
+infodir = ${prefix}/share/info
+mandir = ${prefix}/share/man
 includedir = ${prefix}/include
 oldincludedir = /usr/include
 
@@ -40,15 +40,15 @@ pkgincludedir = $(includedir)/gsat
 
 top_builddir = .
 
-ACLOCAL = aclocal
+ACLOCAL = aclocal-1.13
 AUTOCONF = autoconf
-AUTOMAKE = automake
+AUTOMAKE = automake-1.13
 AUTOHEADER = autoheader
 
-INSTALL = /usr/bin/ginstall -c
+INSTALL = /usr/bin/install -c
 INSTALL_PROGRAM = ${INSTALL} $(AM_INSTALL_PROGRAM_FLAGS)
 INSTALL_DATA = ${INSTALL} -m 644
-INSTALL_SCRIPT = ${INSTALL_PROGRAM}
+INSTALL_SCRIPT = ${INSTALL}
 transform = s,x,x,
 
 NORMAL_INSTALL = :
@@ -57,38 +57,38 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-host_alias = i686-pc-linux-gnu
-host_triplet = i686-pc-linux-gnu
-BUILD_INCLUDED_LIBINTL = no
-CATALOGS = 
-CATOBJEXT = .gmo
+host_alias = 
+host_triplet = x86_64-unknown-linux-gnu
+BUILD_INCLUDED_LIBINTL = @BUILD_INCLUDED_LIBINTL@
+CATALOGS = @CATALOGS@
+CATOBJEXT = @CATOBJEXT@
 CC = gcc
-DATADIRNAME = share
-GENCAT = gencat
-GLIBC21 = yes
-GMOFILES = 
+DATADIRNAME = @DATADIRNAME@
+GENCAT = @GENCAT@
+GLIBC21 = @GLIBC21@
+GMOFILES = @GMOFILES@
 GMSGFMT = /usr/bin/msgfmt
-GTK_CFLAGS = -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/X11R6/include
-GTK_CONFIG = /usr/bin/gtk-config
-GTK_LIBS = -L/usr/lib -L/usr/X11R6/lib -lgtk -lgdk -rdynamic -lgmodule -lglib -ldl -lXext -lX11 -lm
-INSTOBJEXT = .mo
-INTLBISON = bison
+GTK_CFLAGS = -pthread -I/usr/include/gtk-2.0 -I/usr/lib64/gtk-2.0/include -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/libdrm -I/usr/include/libpng16 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libpng16 -I/usr/include/pango-1.0 -I/usr/include/harfbuzz -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include -I/usr/include/freetype2 
+GTK_CONFIG = @GTK_CONFIG@
+GTK_LIBS = -lgtk-x11-2.0 -lgdk-x11-2.0 -lpangocairo-1.0 -latk-1.0 -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lpangoft2-1.0 -lpango-1.0 -lgobject-2.0 -lglib-2.0 -lfontconfig -lfreetype 
+INSTOBJEXT = @INSTOBJEXT@
+INTLBISON = @INTLBISON@
 INTLLIBS = 
-INTLOBJS = 
-INTL_LIBTOOL_SUFFIX_PREFIX = 
-LIBICONV = 
+INTLOBJS = @INTLOBJS@
+INTL_LIBTOOL_SUFFIX_PREFIX = @INTL_LIBTOOL_SUFFIX_PREFIX@
+LIBICONV = -liconv
 MAKEINFO = makeinfo
-MKINSTALLDIRS = ./mkinstalldirs
+MKINSTALLDIRS = @MKINSTALLDIRS@
 MSGFMT = /usr/bin/msgfmt
 PACKAGE = gsat
-POFILES = 
+POFILES = @POFILES@
 POSUB = po
-RANLIB = ranlib
-USE_INCLUDED_LIBINTL = no
+RANLIB = @RANLIB@
+USE_INCLUDED_LIBINTL = @USE_INCLUDED_LIBINTL@
 USE_NLS = yes
 VERSION = 0.1
 
-SUBDIRS = intl po src
+SUBDIRS = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = config.h
@@ -113,7 +113,7 @@ Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	  && CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
 $(ACLOCAL_M4):  configure.in 
-	cd $(srcdir) && $(ACLOCAL)
+	cd $(srcdir) && $(ACLOCAL) -I m4
 
 config.status: $(srcdir)/configure.in $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck

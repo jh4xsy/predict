@@ -18,6 +18,15 @@
 #include "interface.h"
 #include "support.h"
 
+void set_font (GtkWidget *widget, gpointer data)
+{
+  PangoFontDescription *font = (PangoFontDescription *) data;
+  if (GTK_IS_WIDGET (widget))
+    gtk_widget_modify_font (widget, font);
+  if (GTK_IS_CONTAINER (widget))
+    gtk_container_forall(GTK_CONTAINER (widget), &set_font, data);
+}
+
 GtkWidget*
 create_mainwindow (void)
 {
@@ -94,6 +103,7 @@ create_mainwindow (void)
   GtkWidget *lb_velocity;
   GtkWidget *lb_ma;
   GtkWidget *lb_squint;
+  PangoFontDescription *font_desc;
 
   mainwindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_widget_set_name (mainwindow, "mainwindow");
@@ -331,8 +341,8 @@ create_mainwindow (void)
   gtk_object_set_data_full (GTK_OBJECT (mainwindow), "drawingframe", drawingframe,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (drawingframe);
-  gtk_fixed_put (GTK_FIXED (fixed), drawingframe, 0, 24);
-  gtk_widget_set_uposition (drawingframe, 0, 24);
+  gtk_fixed_put (GTK_FIXED (fixed), drawingframe, 0, 30);
+  gtk_widget_set_uposition (drawingframe, 0, 30);
   gtk_widget_set_usize (drawingframe, 704, 354);
   gtk_container_set_border_width (GTK_CONTAINER (drawingframe), 2);
   gtk_frame_set_shadow_type (GTK_FRAME (drawingframe), GTK_SHADOW_ETCHED_OUT);
@@ -347,18 +357,20 @@ create_mainwindow (void)
   gtk_widget_set_usize (maparea, 700, 350);
   gtk_widget_set_sensitive (maparea, FALSE);
 
-  toolbar = gtk_toolbar_new (GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_TEXT);
+/*  toolbar = gtk_toolbar_new (GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_TEXT); */
+  toolbar = gtk_toolbar_new ();
+  gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_TEXT);
   gtk_widget_set_name (toolbar, "toolbar");
   gtk_widget_ref (toolbar);
   gtk_object_set_data_full (GTK_OBJECT (mainwindow), "toolbar", toolbar,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (toolbar);
-  gtk_fixed_put (GTK_FIXED (fixed), toolbar, 0, 0);
-  gtk_widget_set_uposition (toolbar, 0, 0);
-  gtk_widget_set_usize (toolbar, 696, 24);
+  gtk_fixed_put (GTK_FIXED (fixed), toolbar, -12, -12);
+  gtk_widget_set_uposition (toolbar, -12, -12);
+  gtk_widget_set_usize (toolbar, 720, 48);
   gtk_container_set_border_width (GTK_CONTAINER (toolbar), 5);
-  gtk_toolbar_set_space_size (GTK_TOOLBAR (toolbar), 10);
-  gtk_toolbar_set_space_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_SPACE_LINE);
+/*  gtk_toolbar_set_space_size (GTK_TOOLBAR (toolbar), 10); */
+/*  gtk_toolbar_set_space_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_SPACE_LINE); */
   gtk_toolbar_set_tooltips (GTK_TOOLBAR (toolbar), FALSE);
 
   cb_connect = gtk_toolbar_append_element (GTK_TOOLBAR (toolbar),
@@ -567,8 +579,8 @@ create_mainwindow (void)
   gtk_object_set_data_full (GTK_OBJECT (mainwindow), "lb_downlink", lb_downlink,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_downlink);
-  gtk_fixed_put (GTK_FIXED (fixed), lb_downlink, 8, 500);
-  gtk_widget_set_uposition (lb_downlink, 8, 500);
+  gtk_fixed_put (GTK_FIXED (fixed), lb_downlink, 4, 500);
+  gtk_widget_set_uposition (lb_downlink, 4, 500);
   gtk_widget_set_usize (lb_downlink, 0, 0);
 
   lb_beacon = gtk_label_new (_("Beacon Frequency"));
@@ -577,8 +589,8 @@ create_mainwindow (void)
   gtk_object_set_data_full (GTK_OBJECT (mainwindow), "lb_beacon", lb_beacon,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_beacon);
-  gtk_fixed_put (GTK_FIXED (fixed), lb_beacon, 8, 524);
-  gtk_widget_set_uposition (lb_beacon, 8, 524);
+  gtk_fixed_put (GTK_FIXED (fixed), lb_beacon, 4, 524);
+  gtk_widget_set_uposition (lb_beacon, 4, 524);
   gtk_widget_set_usize (lb_beacon, 0, 0);
 
   lb_satellite = gtk_label_new (_("Satellite"));
@@ -587,8 +599,8 @@ create_mainwindow (void)
   gtk_object_set_data_full (GTK_OBJECT (mainwindow), "lb_satellite", lb_satellite,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_satellite);
-  gtk_fixed_put (GTK_FIXED (fixed), lb_satellite, 8, 388);
-  gtk_widget_set_uposition (lb_satellite, 8, 388);
+  gtk_fixed_put (GTK_FIXED (fixed), lb_satellite, 4, 388);
+  gtk_widget_set_uposition (lb_satellite, 4, 388);
   gtk_widget_set_usize (lb_satellite, 0, 0);
 
   lb_uplink = gtk_label_new (_("Uplink Frequency"));
@@ -597,8 +609,8 @@ create_mainwindow (void)
   gtk_object_set_data_full (GTK_OBJECT (mainwindow), "lb_uplink", lb_uplink,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_uplink);
-  gtk_fixed_put (GTK_FIXED (fixed), lb_uplink, 8, 476);
-  gtk_widget_set_uposition (lb_uplink, 8, 476);
+  gtk_fixed_put (GTK_FIXED (fixed), lb_uplink, 4, 476);
+  gtk_widget_set_uposition (lb_uplink, 4, 476);
   gtk_widget_set_usize (lb_uplink, 0, 0);
 
   lb_latitude = gtk_label_new (_("Latitude"));
@@ -607,8 +619,8 @@ create_mainwindow (void)
   gtk_object_set_data_full (GTK_OBJECT (mainwindow), "lb_latitude", lb_latitude,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_latitude);
-  gtk_fixed_put (GTK_FIXED (fixed), lb_latitude, 8, 416);
-  gtk_widget_set_uposition (lb_latitude, 8, 416);
+  gtk_fixed_put (GTK_FIXED (fixed), lb_latitude, 4, 416);
+  gtk_widget_set_uposition (lb_latitude, 4, 416);
   gtk_widget_set_usize (lb_latitude, 0, 0);
 
   lb_longitude = gtk_label_new (_("Longitude"));
@@ -617,8 +629,8 @@ create_mainwindow (void)
   gtk_object_set_data_full (GTK_OBJECT (mainwindow), "lb_longitude", lb_longitude,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_longitude);
-  gtk_fixed_put (GTK_FIXED (fixed), lb_longitude, 8, 444);
-  gtk_widget_set_uposition (lb_longitude, 8, 444);
+  gtk_fixed_put (GTK_FIXED (fixed), lb_longitude, 4, 444);
+  gtk_widget_set_uposition (lb_longitude, 4, 444);
   gtk_widget_set_usize (lb_longitude, 0, 0);
 
   lb_orbit = gtk_label_new (_("Orbit"));
@@ -954,6 +966,13 @@ create_mainwindow (void)
 
   gtk_widget_grab_focus (combo_tx_satname);
   gtk_widget_grab_default (combo_tx_satname);
+
+  font_desc = gtk_widget_get_style (mainwindow)->font_desc;
+  pango_font_description_set_absolute_size (font_desc, 10 * PANGO_SCALE);
+  set_font (mainwindow, font_desc);
+  pango_font_description_set_absolute_size (font_desc, 9 * PANGO_SCALE);
+  set_font (toolbar, font_desc);
+
   return mainwindow;
 }
 
@@ -1070,8 +1089,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "tx_downpluginconfig", tx_downpluginconfig,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (tx_downpluginconfig);
-  gtk_fixed_put (GTK_FIXED (fixed3), tx_downpluginconfig, 104, 40);
-  gtk_widget_set_uposition (tx_downpluginconfig, 104, 40);
+  gtk_fixed_put (GTK_FIXED (fixed3), tx_downpluginconfig, 420, 70);
+  gtk_widget_set_uposition (tx_downpluginconfig, 420, 70);
   gtk_widget_set_usize (tx_downpluginconfig, 160, 24);
 
   tx_uppluginconfig = gtk_entry_new ();
@@ -1080,8 +1099,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "tx_uppluginconfig", tx_uppluginconfig,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (tx_uppluginconfig);
-  gtk_fixed_put (GTK_FIXED (fixed3), tx_uppluginconfig, 104, 112);
-  gtk_widget_set_uposition (tx_uppluginconfig, 104, 112);
+  gtk_fixed_put (GTK_FIXED (fixed3), tx_uppluginconfig, 420, 142);
+  gtk_widget_set_uposition (tx_uppluginconfig, 420, 142);
   gtk_widget_set_usize (tx_uppluginconfig, 160, 24);
 
   tx_beaconpluginconfig = gtk_entry_new ();
@@ -1090,8 +1109,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "tx_beaconpluginconfig", tx_beaconpluginconfig,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (tx_beaconpluginconfig);
-  gtk_fixed_put (GTK_FIXED (fixed3), tx_beaconpluginconfig, 104, 184);
-  gtk_widget_set_uposition (tx_beaconpluginconfig, 104, 184);
+  gtk_fixed_put (GTK_FIXED (fixed3), tx_beaconpluginconfig, 420, 214);
+  gtk_widget_set_uposition (tx_beaconpluginconfig, 420, 214);
   gtk_widget_set_usize (tx_beaconpluginconfig, 160, 24);
 
   lb_prefs_upconfig = gtk_label_new (_("Plugin Config"));
@@ -1100,8 +1119,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "lb_prefs_upconfig", lb_prefs_upconfig,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_prefs_upconfig);
-  gtk_fixed_put (GTK_FIXED (fixed3), lb_prefs_upconfig, 0, 112);
-  gtk_widget_set_uposition (lb_prefs_upconfig, 0, 112);
+  gtk_fixed_put (GTK_FIXED (fixed3), lb_prefs_upconfig, 310, 142);
+  gtk_widget_set_uposition (lb_prefs_upconfig, 310, 142);
   gtk_widget_set_usize (lb_prefs_upconfig, 96, 24);
 
   lb_prefs_beacon = gtk_label_new (_("Beacon plugin"));
@@ -1110,8 +1129,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "lb_prefs_beacon", lb_prefs_beacon,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_prefs_beacon);
-  gtk_fixed_put (GTK_FIXED (fixed3), lb_prefs_beacon, 0, 152);
-  gtk_widget_set_uposition (lb_prefs_beacon, 0, 152);
+  gtk_fixed_put (GTK_FIXED (fixed3), lb_prefs_beacon, 310, 182);
+  gtk_widget_set_uposition (lb_prefs_beacon, 310, 182);
   gtk_widget_set_usize (lb_prefs_beacon, 96, 24);
 
   lb_prefs_beaconconfig = gtk_label_new (_("Plugin Config"));
@@ -1120,8 +1139,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "lb_prefs_beaconconfig", lb_prefs_beaconconfig,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_prefs_beaconconfig);
-  gtk_fixed_put (GTK_FIXED (fixed3), lb_prefs_beaconconfig, 0, 184);
-  gtk_widget_set_uposition (lb_prefs_beaconconfig, 0, 184);
+  gtk_fixed_put (GTK_FIXED (fixed3), lb_prefs_beaconconfig, 310, 214);
+  gtk_widget_set_uposition (lb_prefs_beaconconfig, 310, 214);
   gtk_widget_set_usize (lb_prefs_beaconconfig, 96, 24);
 
   combo_downplugin = gtk_combo_new ();
@@ -1130,8 +1149,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "combo_downplugin", combo_downplugin,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (combo_downplugin);
-  gtk_fixed_put (GTK_FIXED (fixed3), combo_downplugin, 104, 8);
-  gtk_widget_set_uposition (combo_downplugin, 104, 8);
+  gtk_fixed_put (GTK_FIXED (fixed3), combo_downplugin, 420, 38);
+  gtk_widget_set_uposition (combo_downplugin, 420, 38);
   gtk_widget_set_usize (combo_downplugin, 160, 24);
 
   entry_downplugin = GTK_COMBO (combo_downplugin)->entry;
@@ -1148,8 +1167,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "combo_beaconplugin", combo_beaconplugin,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (combo_beaconplugin);
-  gtk_fixed_put (GTK_FIXED (fixed3), combo_beaconplugin, 104, 152);
-  gtk_widget_set_uposition (combo_beaconplugin, 104, 152);
+  gtk_fixed_put (GTK_FIXED (fixed3), combo_beaconplugin, 420, 182);
+  gtk_widget_set_uposition (combo_beaconplugin, 420, 182);
   gtk_widget_set_usize (combo_beaconplugin, 160, 24);
 
   entry_beaconplugin = GTK_COMBO (combo_beaconplugin)->entry;
@@ -1166,9 +1185,9 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "lb_prefs_downlink", lb_prefs_downlink,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_prefs_downlink);
-  gtk_fixed_put (GTK_FIXED (fixed3), lb_prefs_downlink, 0, 8);
-  gtk_widget_set_uposition (lb_prefs_downlink, 0, 8);
-  gtk_widget_set_usize (lb_prefs_downlink, 96, 24);
+  gtk_fixed_put (GTK_FIXED (fixed3), lb_prefs_downlink, 310, 38);
+  gtk_widget_set_uposition (lb_prefs_downlink, 310, 38);
+  gtk_widget_set_usize (lb_prefs_downlink, 106, 24);
 
   lb_prefs_downconfig = gtk_label_new (_("Plugin Config"));
   gtk_widget_set_name (lb_prefs_downconfig, "lb_prefs_downconfig");
@@ -1176,8 +1195,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "lb_prefs_downconfig", lb_prefs_downconfig,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_prefs_downconfig);
-  gtk_fixed_put (GTK_FIXED (fixed3), lb_prefs_downconfig, 0, 40);
-  gtk_widget_set_uposition (lb_prefs_downconfig, 0, 40);
+  gtk_fixed_put (GTK_FIXED (fixed3), lb_prefs_downconfig, 310, 70);
+  gtk_widget_set_uposition (lb_prefs_downconfig, 310, 70);
   gtk_widget_set_usize (lb_prefs_downconfig, 96, 24);
 
   lb_prefs_uplink = gtk_label_new (_("Uplink plugin"));
@@ -1186,8 +1205,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "lb_prefs_uplink", lb_prefs_uplink,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_prefs_uplink);
-  gtk_fixed_put (GTK_FIXED (fixed3), lb_prefs_uplink, 0, 80);
-  gtk_widget_set_uposition (lb_prefs_uplink, 0, 80);
+  gtk_fixed_put (GTK_FIXED (fixed3), lb_prefs_uplink, 310, 110);
+  gtk_widget_set_uposition (lb_prefs_uplink, 310, 110);
   gtk_widget_set_usize (lb_prefs_uplink, 96, 24);
 
   combo_upplugin = gtk_combo_new ();
@@ -1196,8 +1215,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "combo_upplugin", combo_upplugin,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (combo_upplugin);
-  gtk_fixed_put (GTK_FIXED (fixed3), combo_upplugin, 104, 80);
-  gtk_widget_set_uposition (combo_upplugin, 104, 80);
+  gtk_fixed_put (GTK_FIXED (fixed3), combo_upplugin, 420, 110);
+  gtk_widget_set_uposition (combo_upplugin, 420, 110);
   gtk_widget_set_usize (combo_upplugin, 160, 24);
 
   entry_upplugin = GTK_COMBO (combo_upplugin)->entry;
@@ -1233,8 +1252,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "tx_rotorpluginconfig", tx_rotorpluginconfig,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (tx_rotorpluginconfig);
-  gtk_fixed_put (GTK_FIXED (fixed8), tx_rotorpluginconfig, 96, 40);
-  gtk_widget_set_uposition (tx_rotorpluginconfig, 96, 40);
+  gtk_fixed_put (GTK_FIXED (fixed8), tx_rotorpluginconfig, 420, 310);
+  gtk_widget_set_uposition (tx_rotorpluginconfig, 420, 310);
   gtk_widget_set_usize (tx_rotorpluginconfig, 160, 24);
 
   lb_prefs_rotor = gtk_label_new (_("Rotor plugin"));
@@ -1243,8 +1262,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "lb_prefs_rotor", lb_prefs_rotor,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_prefs_rotor);
-  gtk_fixed_put (GTK_FIXED (fixed8), lb_prefs_rotor, 0, 8);
-  gtk_widget_set_uposition (lb_prefs_rotor, 0, 8);
+  gtk_fixed_put (GTK_FIXED (fixed8), lb_prefs_rotor, 310, 278);
+  gtk_widget_set_uposition (lb_prefs_rotor, 310, 278);
   gtk_widget_set_usize (lb_prefs_rotor, 96, 24);
 
   lb_prefs_rotorpluginconfig = gtk_label_new (_("Plugin Config"));
@@ -1253,8 +1272,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "lb_prefs_rotorpluginconfig", lb_prefs_rotorpluginconfig,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_prefs_rotorpluginconfig);
-  gtk_fixed_put (GTK_FIXED (fixed8), lb_prefs_rotorpluginconfig, 0, 40);
-  gtk_widget_set_uposition (lb_prefs_rotorpluginconfig, 0, 40);
+  gtk_fixed_put (GTK_FIXED (fixed8), lb_prefs_rotorpluginconfig, 310, 310);
+  gtk_widget_set_uposition (lb_prefs_rotorpluginconfig, 310, 310);
   gtk_widget_set_usize (lb_prefs_rotorpluginconfig, 96, 24);
 
   combo_rotorplugin = gtk_combo_new ();
@@ -1263,8 +1282,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "combo_rotorplugin", combo_rotorplugin,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (combo_rotorplugin);
-  gtk_fixed_put (GTK_FIXED (fixed8), combo_rotorplugin, 96, 8);
-  gtk_widget_set_uposition (combo_rotorplugin, 96, 8);
+  gtk_fixed_put (GTK_FIXED (fixed8), combo_rotorplugin, 420, 278);
+  gtk_widget_set_uposition (combo_rotorplugin, 420, 278);
   gtk_widget_set_usize (combo_rotorplugin, 160, 24);
 
   entry_rotorplugin = GTK_COMBO (combo_rotorplugin)->entry;
@@ -1300,8 +1319,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "tx_aoscommand", tx_aoscommand,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (tx_aoscommand);
-  gtk_fixed_put (GTK_FIXED (fixed2), tx_aoscommand, 104, 216);
-  gtk_widget_set_uposition (tx_aoscommand, 104, 216);
+  gtk_fixed_put (GTK_FIXED (fixed2), tx_aoscommand, 126, 278);
+  gtk_widget_set_uposition (tx_aoscommand, 126, 278);
   gtk_widget_set_usize (tx_aoscommand, 160, 24);
 
   tx_loscommand = gtk_entry_new ();
@@ -1310,8 +1329,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "tx_loscommand", tx_loscommand,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (tx_loscommand);
-  gtk_fixed_put (GTK_FIXED (fixed2), tx_loscommand, 104, 264);
-  gtk_widget_set_uposition (tx_loscommand, 104, 264);
+  gtk_fixed_put (GTK_FIXED (fixed2), tx_loscommand, 126, 310);
+  gtk_widget_set_uposition (tx_loscommand, 126, 310);
   gtk_widget_set_usize (tx_loscommand, 160, 24);
 
   lb_prefs_time = gtk_label_new (_("Time format"));
@@ -1320,9 +1339,9 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "lb_prefs_time", lb_prefs_time,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_prefs_time);
-  gtk_fixed_put (GTK_FIXED (fixed2), lb_prefs_time, 8, 48);
-  gtk_widget_set_uposition (lb_prefs_time, 8, 48);
-  gtk_widget_set_usize (lb_prefs_time, 88, 24);
+  gtk_fixed_put (GTK_FIXED (fixed2), lb_prefs_time, 16, 70);
+  gtk_widget_set_uposition (lb_prefs_time, 16, 70);
+  gtk_widget_set_usize (lb_prefs_time, 84, 24);
 
   rd_prefs_local = gtk_radio_button_new_with_label (timeprefs_group, _("Local time"));
   timeprefs_group = gtk_radio_button_group (GTK_RADIO_BUTTON (rd_prefs_local));
@@ -1331,9 +1350,9 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "rd_prefs_local", rd_prefs_local,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (rd_prefs_local);
-  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_local, 104, 48);
-  gtk_widget_set_uposition (rd_prefs_local, 104, 48);
-  gtk_widget_set_usize (rd_prefs_local, 64, 24);
+  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_local, 146, 70);
+  gtk_widget_set_uposition (rd_prefs_local, 146, 70);
+  gtk_widget_set_usize (rd_prefs_local, 94, 24);
 
   rd_prefs_utc = gtk_radio_button_new_with_label (timeprefs_group, _("UTC time"));
   timeprefs_group = gtk_radio_button_group (GTK_RADIO_BUTTON (rd_prefs_utc));
@@ -1342,9 +1361,9 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "rd_prefs_utc", rd_prefs_utc,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (rd_prefs_utc);
-  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_utc, 176, 48);
-  gtk_widget_set_uposition (rd_prefs_utc, 176, 48);
-  gtk_widget_set_usize (rd_prefs_utc, 64, 24);
+  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_utc, 146, 90);
+  gtk_widget_set_uposition (rd_prefs_utc, 146, 90);
+  gtk_widget_set_usize (rd_prefs_utc, 94, 24);
 
   lb_prefs_grid = gtk_label_new (_("Map grid"));
   gtk_widget_set_name (lb_prefs_grid, "lb_prefs_grid");
@@ -1352,9 +1371,9 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "lb_prefs_grid", lb_prefs_grid,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_prefs_grid);
-  gtk_fixed_put (GTK_FIXED (fixed2), lb_prefs_grid, 8, 16);
-  gtk_widget_set_uposition (lb_prefs_grid, 8, 16);
-  gtk_widget_set_usize (lb_prefs_grid, 88, 24);
+  gtk_fixed_put (GTK_FIXED (fixed2), lb_prefs_grid, 16, 38);
+  gtk_widget_set_uposition (lb_prefs_grid, 16, 38);
+  gtk_widget_set_usize (lb_prefs_grid, 58, 24);
 
   rd_prefs_gridon = gtk_radio_button_new_with_label (gridprefs_group, _("On"));
   gridprefs_group = gtk_radio_button_group (GTK_RADIO_BUTTON (rd_prefs_gridon));
@@ -1363,8 +1382,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "rd_prefs_gridon", rd_prefs_gridon,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (rd_prefs_gridon);
-  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_gridon, 104, 16);
-  gtk_widget_set_uposition (rd_prefs_gridon, 104, 16);
+  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_gridon, 146, 38);
+  gtk_widget_set_uposition (rd_prefs_gridon, 146, 38);
   gtk_widget_set_usize (rd_prefs_gridon, 48, 24);
 
   rd_prefs_gridoff = gtk_radio_button_new_with_label (gridprefs_group, _("Off"));
@@ -1374,8 +1393,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "rd_prefs_gridoff", rd_prefs_gridoff,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (rd_prefs_gridoff);
-  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_gridoff, 152, 16);
-  gtk_widget_set_uposition (rd_prefs_gridoff, 152, 16);
+  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_gridoff, 194, 38);
+  gtk_widget_set_uposition (rd_prefs_gridoff, 194, 38);
   gtk_widget_set_usize (rd_prefs_gridoff, 48, 24);
 
   lb_prefs_fpsat = gtk_label_new (_("Satellite footprint"));
@@ -1384,9 +1403,9 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "lb_prefs_fpsat", lb_prefs_fpsat,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_prefs_fpsat);
-  gtk_fixed_put (GTK_FIXED (fixed2), lb_prefs_fpsat, 8, 80);
-  gtk_widget_set_uposition (lb_prefs_fpsat, 8, 80);
-  gtk_widget_set_usize (lb_prefs_fpsat, 88, 24);
+  gtk_fixed_put (GTK_FIXED (fixed2), lb_prefs_fpsat, 16, 122);
+  gtk_widget_set_uposition (lb_prefs_fpsat, 16, 122);
+  gtk_widget_set_usize (lb_prefs_fpsat, 114, 24);
 
   rd_prefs_fpsaton = gtk_radio_button_new_with_label (fpsatprefs_group, _("On"));
   fpsatprefs_group = gtk_radio_button_group (GTK_RADIO_BUTTON (rd_prefs_fpsaton));
@@ -1395,8 +1414,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "rd_prefs_fpsaton", rd_prefs_fpsaton,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (rd_prefs_fpsaton);
-  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_fpsaton, 104, 80);
-  gtk_widget_set_uposition (rd_prefs_fpsaton, 104, 80);
+  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_fpsaton, 146, 122);
+  gtk_widget_set_uposition (rd_prefs_fpsaton, 146, 122);
   gtk_widget_set_usize (rd_prefs_fpsaton, 48, 24);
 
   rd_prefs_fpsatoff = gtk_radio_button_new_with_label (fpsatprefs_group, _("Off"));
@@ -1406,8 +1425,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "rd_prefs_fpsatoff", rd_prefs_fpsatoff,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (rd_prefs_fpsatoff);
-  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_fpsatoff, 152, 80);
-  gtk_widget_set_uposition (rd_prefs_fpsatoff, 152, 80);
+  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_fpsatoff, 194, 122);
+  gtk_widget_set_uposition (rd_prefs_fpsatoff, 194, 122);
   gtk_widget_set_usize (rd_prefs_fpsatoff, 48, 24);
 
   lb_prefs_fpqth = gtk_label_new (_("Station footprint"));
@@ -1416,9 +1435,9 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "lb_prefs_fpqth", lb_prefs_fpqth,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_prefs_fpqth);
-  gtk_fixed_put (GTK_FIXED (fixed2), lb_prefs_fpqth, 8, 112);
-  gtk_widget_set_uposition (lb_prefs_fpqth, 8, 112);
-  gtk_widget_set_usize (lb_prefs_fpqth, 88, 24);
+  gtk_fixed_put (GTK_FIXED (fixed2), lb_prefs_fpqth, 16, 154);
+  gtk_widget_set_uposition (lb_prefs_fpqth, 16, 154);
+  gtk_widget_set_usize (lb_prefs_fpqth, 108, 24);
 
   rd_prefs_fpqthon = gtk_radio_button_new_with_label (fpqthprefs_group, _("On"));
   fpqthprefs_group = gtk_radio_button_group (GTK_RADIO_BUTTON (rd_prefs_fpqthon));
@@ -1427,8 +1446,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "rd_prefs_fpqthon", rd_prefs_fpqthon,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (rd_prefs_fpqthon);
-  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_fpqthon, 104, 112);
-  gtk_widget_set_uposition (rd_prefs_fpqthon, 104, 112);
+  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_fpqthon, 146, 154);
+  gtk_widget_set_uposition (rd_prefs_fpqthon, 146, 154);
   gtk_widget_set_usize (rd_prefs_fpqthon, 48, 24);
 
   rd_prefs_fpqthoff = gtk_radio_button_new_with_label (fpqthprefs_group, _("Off"));
@@ -1438,8 +1457,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "rd_prefs_fpqthoff", rd_prefs_fpqthoff,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (rd_prefs_fpqthoff);
-  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_fpqthoff, 152, 112);
-  gtk_widget_set_uposition (rd_prefs_fpqthoff, 152, 112);
+  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_fpqthoff, 194, 154);
+  gtk_widget_set_uposition (rd_prefs_fpqthoff, 194, 154);
   gtk_widget_set_usize (rd_prefs_fpqthoff, 48, 24);
 
   lb_prefs_track = gtk_label_new (_("Ground Track"));
@@ -1448,8 +1467,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "lb_prefs_track", lb_prefs_track,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_prefs_track);
-  gtk_fixed_put (GTK_FIXED (fixed2), lb_prefs_track, 8, 144);
-  gtk_widget_set_uposition (lb_prefs_track, 8, 144);
+  gtk_fixed_put (GTK_FIXED (fixed2), lb_prefs_track, 16, 186);
+  gtk_widget_set_uposition (lb_prefs_track, 16, 186);
   gtk_widget_set_usize (lb_prefs_track, 88, 24);
 
   rd_prefs_trackon = gtk_radio_button_new_with_label (trackprefs_group, _("On"));
@@ -1459,8 +1478,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "rd_prefs_trackon", rd_prefs_trackon,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (rd_prefs_trackon);
-  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_trackon, 104, 144);
-  gtk_widget_set_uposition (rd_prefs_trackon, 104, 144);
+  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_trackon, 146, 186);
+  gtk_widget_set_uposition (rd_prefs_trackon, 146, 186);
   gtk_widget_set_usize (rd_prefs_trackon, 48, 24);
 
   rd_prefs_trackoff = gtk_radio_button_new_with_label (trackprefs_group, _("Off"));
@@ -1470,8 +1489,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "rd_prefs_trackoff", rd_prefs_trackoff,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (rd_prefs_trackoff);
-  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_trackoff, 152, 144);
-  gtk_widget_set_uposition (rd_prefs_trackoff, 152, 144);
+  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_trackoff, 194, 186);
+  gtk_widget_set_uposition (rd_prefs_trackoff, 194, 186);
   gtk_widget_set_usize (rd_prefs_trackoff, 48, 24);
 
   lb_prefs_autofreq = gtk_label_new (_("Auto Frequency"));
@@ -1480,9 +1499,9 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "lb_prefs_autofreq", lb_prefs_autofreq,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_prefs_autofreq);
-  gtk_fixed_put (GTK_FIXED (fixed2), lb_prefs_autofreq, 8, 176);
-  gtk_widget_set_uposition (lb_prefs_autofreq, 8, 176);
-  gtk_widget_set_usize (lb_prefs_autofreq, 88, 24);
+  gtk_fixed_put (GTK_FIXED (fixed2), lb_prefs_autofreq, 16, 218);
+  gtk_widget_set_uposition (lb_prefs_autofreq, 16, 218);
+  gtk_widget_set_usize (lb_prefs_autofreq, 108, 24);
 
   rd_prefs_autofreqon = gtk_radio_button_new_with_label (autofreqprefs_group, _("On"));
   autofreqprefs_group = gtk_radio_button_group (GTK_RADIO_BUTTON (rd_prefs_autofreqon));
@@ -1491,8 +1510,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "rd_prefs_autofreqon", rd_prefs_autofreqon,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (rd_prefs_autofreqon);
-  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_autofreqon, 104, 176);
-  gtk_widget_set_uposition (rd_prefs_autofreqon, 104, 176);
+  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_autofreqon, 146, 218);
+  gtk_widget_set_uposition (rd_prefs_autofreqon, 146, 218);
   gtk_widget_set_usize (rd_prefs_autofreqon, 48, 24);
 
   rd_prefs_autofreqoff = gtk_radio_button_new_with_label (autofreqprefs_group, _("Off"));
@@ -1502,8 +1521,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "rd_prefs_autofreqoff", rd_prefs_autofreqoff,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (rd_prefs_autofreqoff);
-  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_autofreqoff, 152, 176);
-  gtk_widget_set_uposition (rd_prefs_autofreqoff, 152, 176);
+  gtk_fixed_put (GTK_FIXED (fixed2), rd_prefs_autofreqoff, 194, 218);
+  gtk_widget_set_uposition (rd_prefs_autofreqoff, 194, 218);
   gtk_widget_set_usize (rd_prefs_autofreqoff, 48, 24);
 
   lb_prefs_aoscommand = gtk_label_new (_("AOS command"));
@@ -1512,8 +1531,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "lb_prefs_aoscommand", lb_prefs_aoscommand,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_prefs_aoscommand);
-  gtk_fixed_put (GTK_FIXED (fixed2), lb_prefs_aoscommand, 8, 216);
-  gtk_widget_set_uposition (lb_prefs_aoscommand, 8, 216);
+  gtk_fixed_put (GTK_FIXED (fixed2), lb_prefs_aoscommand, 16, 278);
+  gtk_widget_set_uposition (lb_prefs_aoscommand, 16, 278);
   gtk_widget_set_usize (lb_prefs_aoscommand, 96, 24);
 
   lb_prefs_loscommand = gtk_label_new (_("LOS command"));
@@ -1522,8 +1541,8 @@ create_dialog_preferences (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_preferences), "lb_prefs_loscommand", lb_prefs_loscommand,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_prefs_loscommand);
-  gtk_fixed_put (GTK_FIXED (fixed2), lb_prefs_loscommand, 8, 264);
-  gtk_widget_set_uposition (lb_prefs_loscommand, 8, 264);
+  gtk_fixed_put (GTK_FIXED (fixed2), lb_prefs_loscommand, 16, 310);
+  gtk_widget_set_uposition (lb_prefs_loscommand, 16, 310);
   gtk_widget_set_usize (lb_prefs_loscommand, 96, 24);
 
   dialog_action_area1 = GTK_DIALOG (dialog_preferences)->action_area;
@@ -1751,7 +1770,7 @@ create_dialog_azel_graph (void)
   GtkWidget *lb_azel_elevation;
   GtkWidget *lb_azel_azimuth;
 
-  dialog_azel_graph = gtk_window_new (GTK_WINDOW_DIALOG);
+  dialog_azel_graph = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_widget_set_name (dialog_azel_graph, "dialog_azel_graph");
   gtk_object_set_data (GTK_OBJECT (dialog_azel_graph), "dialog_azel_graph", dialog_azel_graph);
   gtk_window_set_title (GTK_WINDOW (dialog_azel_graph), _("gsat - AZ/EL tracking"));
@@ -1816,8 +1835,7 @@ create_dialog_azel_graph (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_azel_graph), "tx_azel_sat", tx_azel_sat,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (tx_azel_sat);
-  gtk_fixed_put (GTK_FIXED (fixed7), tx_azel_sat, 96, 8);
-  gtk_widget_set_uposition (tx_azel_sat, 96, 8);
+  gtk_fixed_put (GTK_FIXED (fixed7), tx_azel_sat, 112, 8);
   gtk_widget_set_usize (tx_azel_sat, 80, 16);
   gtk_entry_set_editable (GTK_ENTRY (tx_azel_sat), FALSE);
 
@@ -1828,7 +1846,6 @@ create_dialog_azel_graph (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (tx_azel_azimuth);
   gtk_fixed_put (GTK_FIXED (fixed7), tx_azel_azimuth, 64, 32);
-  gtk_widget_set_uposition (tx_azel_azimuth, 64, 32);
   gtk_widget_set_usize (tx_azel_azimuth, 48, 16);
   GTK_WIDGET_UNSET_FLAGS (tx_azel_azimuth, GTK_CAN_FOCUS);
   gtk_entry_set_editable (GTK_ENTRY (tx_azel_azimuth), FALSE);
@@ -1839,8 +1856,7 @@ create_dialog_azel_graph (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_azel_graph), "tx_azel_elevation", tx_azel_elevation,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (tx_azel_elevation);
-  gtk_fixed_put (GTK_FIXED (fixed7), tx_azel_elevation, 184, 32);
-  gtk_widget_set_uposition (tx_azel_elevation, 184, 32);
+  gtk_fixed_put (GTK_FIXED (fixed7), tx_azel_elevation, 200, 32);
   gtk_widget_set_usize (tx_azel_elevation, 48, 16);
   GTK_WIDGET_UNSET_FLAGS (tx_azel_elevation, GTK_CAN_FOCUS);
   gtk_entry_set_editable (GTK_ENTRY (tx_azel_elevation), FALSE);
@@ -1851,9 +1867,8 @@ create_dialog_azel_graph (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_azel_graph), "lb_azel_sat", lb_azel_sat,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_azel_sat);
-  gtk_fixed_put (GTK_FIXED (fixed7), lb_azel_sat, 48, 8);
-  gtk_widget_set_uposition (lb_azel_sat, 48, 8);
-  gtk_widget_set_usize (lb_azel_sat, 48, 16);
+  gtk_fixed_put (GTK_FIXED (fixed7), lb_azel_sat, 38, 8);
+  gtk_widget_set_usize (lb_azel_sat, 58, 16);
 
   lb_azel_elevation = gtk_label_new (_("Elevation"));
   gtk_widget_set_name (lb_azel_elevation, "lb_azel_elevation");
@@ -1862,8 +1877,7 @@ create_dialog_azel_graph (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_azel_elevation);
   gtk_fixed_put (GTK_FIXED (fixed7), lb_azel_elevation, 128, 32);
-  gtk_widget_set_uposition (lb_azel_elevation, 128, 32);
-  gtk_widget_set_usize (lb_azel_elevation, 48, 16);
+  gtk_widget_set_usize (lb_azel_elevation, 64, 16);
 
   lb_azel_azimuth = gtk_label_new (_("Azimuth"));
   gtk_widget_set_name (lb_azel_azimuth, "lb_azel_azimuth");
@@ -1871,9 +1885,8 @@ create_dialog_azel_graph (void)
   gtk_object_set_data_full (GTK_OBJECT (dialog_azel_graph), "lb_azel_azimuth", lb_azel_azimuth,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_azel_azimuth);
-  gtk_fixed_put (GTK_FIXED (fixed7), lb_azel_azimuth, 16, 32);
-  gtk_widget_set_uposition (lb_azel_azimuth, 16, 32);
-  gtk_widget_set_usize (lb_azel_azimuth, 40, 16);
+  gtk_fixed_put (GTK_FIXED (fixed7), lb_azel_azimuth, 0, 32);
+  gtk_widget_set_usize (lb_azel_azimuth, 58, 16);
 
   gtk_signal_connect (GTK_OBJECT (dialog_azel_graph), "delete_event",
                       GTK_SIGNAL_FUNC (on_dialog_azel_graph_delete_event),
@@ -2019,7 +2032,6 @@ create_dialog_dbedit (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (tx_dbsat);
   gtk_fixed_put (GTK_FIXED (fixed10), tx_dbsat, 8, 24);
-  gtk_widget_set_uposition (tx_dbsat, 8, 24);
   gtk_widget_set_usize (tx_dbsat, 80, 20);
 
   tx_dbuplink = gtk_entry_new ();
@@ -2029,7 +2041,6 @@ create_dialog_dbedit (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (tx_dbuplink);
   gtk_fixed_put (GTK_FIXED (fixed10), tx_dbuplink, 144, 24);
-  gtk_widget_set_uposition (tx_dbuplink, 144, 24);
   gtk_widget_set_usize (tx_dbuplink, 76, 20);
 
   tx_dbdownlink = gtk_entry_new ();
@@ -2039,7 +2050,6 @@ create_dialog_dbedit (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (tx_dbdownlink);
   gtk_fixed_put (GTK_FIXED (fixed10), tx_dbdownlink, 228, 24);
-  gtk_widget_set_uposition (tx_dbdownlink, 228, 24);
   gtk_widget_set_usize (tx_dbdownlink, 76, 20);
 
   tx_dbbeacon = gtk_entry_new ();
@@ -2049,7 +2059,6 @@ create_dialog_dbedit (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (tx_dbbeacon);
   gtk_fixed_put (GTK_FIXED (fixed10), tx_dbbeacon, 312, 24);
-  gtk_widget_set_uposition (tx_dbbeacon, 312, 24);
   gtk_widget_set_usize (tx_dbbeacon, 76, 20);
 
   bt_dbadd = gtk_button_new_with_label (_("Add"));
@@ -2059,7 +2068,6 @@ create_dialog_dbedit (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (bt_dbadd);
   gtk_fixed_put (GTK_FIXED (fixed10), bt_dbadd, 16, 56);
-  gtk_widget_set_uposition (bt_dbadd, 16, 56);
   gtk_widget_set_usize (bt_dbadd, 64, 24);
 
   bt_dbupdate = gtk_button_new_with_label (_("Update"));
@@ -2069,7 +2077,6 @@ create_dialog_dbedit (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (bt_dbupdate);
   gtk_fixed_put (GTK_FIXED (fixed10), bt_dbupdate, 167, 56);
-  gtk_widget_set_uposition (bt_dbupdate, 167, 56);
   gtk_widget_set_usize (bt_dbupdate, 64, 24);
 
   bt_dbdelete = gtk_button_new_with_label (_("Delete"));
@@ -2079,7 +2086,6 @@ create_dialog_dbedit (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (bt_dbdelete);
   gtk_fixed_put (GTK_FIXED (fixed10), bt_dbdelete, 317, 56);
-  gtk_widget_set_uposition (bt_dbdelete, 317, 56);
   gtk_widget_set_usize (bt_dbdelete, 64, 24);
 
   lb_dbsat = gtk_label_new (_("Satellite"));
@@ -2089,7 +2095,6 @@ create_dialog_dbedit (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_dbsat);
   gtk_fixed_put (GTK_FIXED (fixed10), lb_dbsat, 8, 6);
-  gtk_widget_set_uposition (lb_dbsat, 8, 6);
   gtk_widget_set_usize (lb_dbsat, 80, 16);
 
   lb_dbmode = gtk_label_new (_("Mode"));
@@ -2099,7 +2104,6 @@ create_dialog_dbedit (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_dbmode);
   gtk_fixed_put (GTK_FIXED (fixed10), lb_dbmode, 96, 6);
-  gtk_widget_set_uposition (lb_dbmode, 96, 6);
   gtk_widget_set_usize (lb_dbmode, 40, 16);
 
   tx_dbmode = gtk_entry_new ();
@@ -2109,7 +2113,6 @@ create_dialog_dbedit (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (tx_dbmode);
   gtk_fixed_put (GTK_FIXED (fixed10), tx_dbmode, 96, 24);
-  gtk_widget_set_uposition (tx_dbmode, 96, 24);
   gtk_widget_set_usize (tx_dbmode, 40, 20);
 
   lb_dbuplink = gtk_label_new (_("Uplink"));
@@ -2119,7 +2122,6 @@ create_dialog_dbedit (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_dbuplink);
   gtk_fixed_put (GTK_FIXED (fixed10), lb_dbuplink, 144, 6);
-  gtk_widget_set_uposition (lb_dbuplink, 144, 6);
   gtk_widget_set_usize (lb_dbuplink, 76, 16);
 
   lb_dbdownlink = gtk_label_new (_("Downlink"));
@@ -2129,7 +2131,6 @@ create_dialog_dbedit (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_dbdownlink);
   gtk_fixed_put (GTK_FIXED (fixed10), lb_dbdownlink, 228, 6);
-  gtk_widget_set_uposition (lb_dbdownlink, 228, 6);
   gtk_widget_set_usize (lb_dbdownlink, 76, 16);
 
   lb_dbbeacon = gtk_label_new (_("Beacon"));
@@ -2139,7 +2140,6 @@ create_dialog_dbedit (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (lb_dbbeacon);
   gtk_fixed_put (GTK_FIXED (fixed10), lb_dbbeacon, 312, 6);
-  gtk_widget_set_uposition (lb_dbbeacon, 312, 6);
   gtk_widget_set_usize (lb_dbbeacon, 76, 16);
 
   gtk_signal_connect (GTK_OBJECT (dialog_dbedit), "delete_event",

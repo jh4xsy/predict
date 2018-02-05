@@ -6,7 +6,7 @@
 
 TARGETS=radio_FT736 radio_ICOM radio_print radio_test rotor_print rotor_pictrack
 
-PLUGINDIR=/usr/local/lib/gsat/plugins
+PLUGINDIR=/usr/local/lib64/gsat/plugins
 
 all: $(TARGETS)
 

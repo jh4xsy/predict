@@ -16,5 +16,5 @@ gsat_SOURCES = \
 	db.c db.h \
 	prefs.c prefs.h
 
-gsat_LDADD = @GTK_LIBS@ $(INTLLIBS)
+gsat_LDADD = @GTK_LIBS@ $(INTLLIBS) -lm -ldl
 

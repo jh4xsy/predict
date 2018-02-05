@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = intl po src
+SUBDIRS = po src
 
 install-data-local:
 	@$(NORMAL_INSTALL)
@@ -32,3 +32,7 @@ dist-hook:
 	  done \
 	fi
 
+
+ACLOCAL_AMFLAGS = -I m4
+
+EXTRA_DIST = m4/ChangeLog
