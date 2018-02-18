@@ -3,12 +3,16 @@
 # designed to be placed in your home directory under a subdirectory
 # called "cronjobs".  See the README file for more information.
 #
+wget -qr www.dk3wn.info/tle/amateur.txt -O $HOME/cronjobs/dk3wn.txt
+wget -qr www.amsat.org/amsat/ftp/keps/current/nasabare.txt -O $HOME/cronjobs/nasabare.txt
 wget -qr www.celestrak.com/NORAD/elements/amateur.txt -O $HOME/cronjobs/amateur.txt
-wget -qr www.celestrak.com/NORAD/elements/visual.txt -O $HOME/cronjobs/visual.txt
-wget -qr www.celestrak.com/NORAD/elements/weather.txt -O $HOME/cronjobs/weather.txt
-wget -qr www.celestrak.com/NORAD/elements/stations.txt -O $HOME/cronjobs/stations.txt
+wget -qr www.celestrak.com/NORAD/elements/cubesat.txt -O $HOME/cronjobs/cubesat.txt
+wget -qr www.celestrak.com/NORAD/elements/engineering.txt -O $HOME/cronjobs/engineering.txt
+wget -qr www.celestrak.com/NORAD/elements/tle-new.txt -O $HOME/cronjobs/tle-new.txt
+/usr/local/bin/predict -u $HOME/cronjobs/dk3wn.txt
+/usr/local/bin/predict -u $HOME/cronjobs/nasabare.txt
 /usr/local/bin/predict -u $HOME/cronjobs/amateur.txt
-/usr/local/bin/predict -u $HOME/cronjobs/visual.txt
-/usr/local/bin/predict -u $HOME/cronjobs/weather.txt
-/usr/local/bin/predict -u $HOME/cronjobs/stations.txt
+/usr/local/bin/predict -u $HOME/cronjobs/cubesat.txt
+/usr/local/bin/predict -u $HOME/cronjobs/engineering.txt
+/usr/local/bin/predict -u $HOME/cronjobs/tle-new.txt
 /usr/local/bin/kep_reload localhost
