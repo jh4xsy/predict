@@ -5432,10 +5432,10 @@ void MultiTrack()
 {
 	/* This function tracks all satellites in the program's
 	   database simultaneously until 'Q' or ESC is pressed.
-	   Satellites in range are HIGHLIGHTED.  Coordinates
+	   ONLY Satellites in range are DISPLAYED.  Coordinates
 	   for the Sun and Moon are also displayed. */
 
-	int		x, y, z, ans;
+	int		x, y, x1, y1, z, ans;
 
 	unsigned char	satindex[MAX_SATS], inrange[MAX_SATS], sunstat=0, ok2predict[MAX_SATS];
 
@@ -5449,13 +5449,13 @@ void MultiTrack()
 	attrset(COLOR_PAIR(6)|A_REVERSE|A_BOLD);
 	clear();
 
-	printw("                                                                                ");
-	printw("                     PREDICT Real-Time Multi-Tracking Mode                      ");
-	printw("                    Current Date/Time:                                          ");
-	printw("                                                                                ");
-
+	mvprintw(0,0, "                                                                                  ");
+	mvprintw(1,0, "                     PREDICT Real-Time Multi-Tracking Mode                        ");
+	mvprintw(2,0, "                    Current Date/Time:                                            ");
+	mvprintw(3,0, "                                                                                  ");
+ 
 	attrset(COLOR_PAIR(2)|A_REVERSE);
-	printw(" Satellite  Az   El %s  %s  Range  | Satellite  Az   El %s  %s  Range   ",(io_lat=='N'?"LatN":"LatS"),(io_lon=='W'?"LonW":"LonE"),(io_lat=='N'?"LatN":"LatS"),(io_lon=='W'?"LonW":"LonE"));
+	mvprintw(4,0, " Satellite  Az   El %s  %s  Range  | Satellite  Az   El %s  %s  Range   ",(io_lat=='N'?"LatN":"LatS"),(io_lon=='W'?"LonW":"LonE"),(io_lat=='N'?"LatN":"LatS"),(io_lon=='W'?"LonW":"LonE"));
 
 	for (x=0; x<MAX_SATS; x++)
 	{
@@ -5472,6 +5472,7 @@ void MultiTrack()
 
 	do
 	{
+		x1=1; y1=0;
 		for (z=0; z<MAX_SATS; z++)
 		{
 			y=z/2;
@@ -5517,7 +5518,14 @@ void MultiTrack()
 				else
 					sunstat='N';
 
-				mvprintw(y+6,x,"%-10s%3.0f  %+3.0f  %3.0f   %3.0f %6.0f %c", Abbreviate(sat[indx].name,9),sat_azi,sat_ele,(io_lat=='N'?+1:-1)*sat_lat,(io_lon=='W'?360.0-sat_lon:sat_lon),sat_range,sunstat);
+				/* Display inrange Satellites */
+				if (inrange[indx]==1)
+				{
+					if ( y1>12 )		/* max 12! birds only */
+						y1 = 11;
+					mvprintw(y1+6,x1,"%-10s%3.0f  %+3.0f  %3.0f   %3.0f %6.0f %c", Abbreviate(sat[indx].name,9),sat_azi,sat_ele,(io_lat=='N'?+1:-1)*sat_lat,(io_lon=='W'?360.0-sat_lon:sat_lon),sat_range,sunstat);
+					y1 += 1;
+				}
 
 				if (socket_flag)
 				{
@@ -5546,20 +5554,20 @@ void MultiTrack()
 				}
 
 				attrset(COLOR_PAIR(4)|A_BOLD);
-				mvprintw(20+OFFSET,5,"   Sun   ");
-				mvprintw(21+OFFSET,5,"---------");
+				mvprintw(20,5,"   Sun   ");
+				mvprintw(21,5,"---------");
 				attrset(COLOR_PAIR(3)|A_BOLD);
-				mvprintw(22+OFFSET,5,"%-7.2fAz",sun_azi);
-				mvprintw(23+OFFSET,4,"%+-6.2f  El",sun_ele);
+				mvprintw(22,5,"%-7.2fAz",sun_azi);
+				mvprintw(23,4,"%+-6.2f  El",sun_ele);
 
 				FindMoon(daynum);
 
 				attrset(COLOR_PAIR(4)|A_BOLD);
-				mvprintw(20+OFFSET,65,"  Moon  ");
-				mvprintw(21+OFFSET,65,"---------");
+				mvprintw(20,65,"  Moon  ");
+				mvprintw(21,65,"---------");
 				attrset(COLOR_PAIR(3)|A_BOLD);
-				mvprintw(22+OFFSET,65,"%-7.2fAz",moon_az);
-				mvprintw(23+OFFSET,64,"%+-6.2f  El",moon_el);
+				mvprintw(22,65,"%-7.2fAz",moon_az);
+				mvprintw(23,64,"%+-6.2f  El",moon_el);
 
 				/* Calculate Next Event (AOS/LOS) Times */
 
@@ -5618,6 +5626,12 @@ void MultiTrack()
 			}
  		}
 
+		/* Clear LOSed Satellites */
+		while ( y1< 12 ) {
+			mvprintw(y1+6,x1,"                                       ");
+			y1 += 1;
+		}
+
 		attrset(COLOR_PAIR(6)|A_REVERSE|A_BOLD);
 
 		daynum=CurrentDaynum();
@@ -5646,15 +5660,15 @@ void MultiTrack()
                          * So 19 becomes 31, offset of 12 (duh)
                          */
 			attrset(COLOR_PAIR(4)|A_BOLD);
-			mvprintw(19 + OFFSET,31,"Upcoming Passes");
-			mvprintw(20 + OFFSET,31,"---------------");
+			mvprintw(19,31,"Upcoming Passes");
+			mvprintw(20,31,"---------------");
 			attrset(COLOR_PAIR(3)|A_BOLD);
 
 			for (x=0, y=0, z=-1; x<MAX_SATS-1 && y!=3; x++)
 			{
 				if (ok2predict[satindex[x]] && aos2[x]!=0.0)
 				{
-					mvprintw(y+21+OFFSET,19,"%10s on %s UTC",Abbreviate(sat[(int)satindex[x]].name,9),Daynum2String(aos2[x]));
+					mvprintw(y+21,19,"%10s on %s UTC",Abbreviate(sat[(int)satindex[x]].name,9),Daynum2String(aos2[x]));
 
 					if (z==-1)
 						z=x;
